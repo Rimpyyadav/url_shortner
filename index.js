@@ -1,5 +1,5 @@
 const express = require("express");
-
+const path = require('path');
 const connectDb = require("./connect.js");
 const urlRoute = require('./routes/url.routes.js');
 const URL = require('./models/url.js');
@@ -12,9 +12,14 @@ const PORT = 8080;
 
 connectDb();
 
+app.set('view engine','ejs');
+app.set('views', path.resolve("./views"))
 
 app.use(express.json()); 
+app.use(express.urlencoded({ extended:false}));
+
 app.use("/url",urlRoute);
+app.use("/", staticRoute);
 app.get('/:shortId',async (req,res)=>{
     const shortId = req.params.shortId;
    const entry = await URL.findOneAndUpdate({
