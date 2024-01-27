@@ -3,7 +3,9 @@ const path = require('path');
 const connectDb = require("./connect.js");
 const urlRoute = require('./routes/url.routes.js');
 const staticRoute = require("./routes/staticRouter.js");
-const userRoute = require('./routes/user.js')
+const userRoute = require('./routes/user.js');
+const cookieParser = require('cookie-parser');
+const {restrictToLoggedinUserOnly} = require('./middleware/auth.js');
 const URL = require('./models/url.js');
 require('dotenv').config();
 const app = express();
@@ -20,8 +22,9 @@ app.set("view engine","ejs");
 
 app.use(express.json()); 
 app.use(express.urlencoded({ extended:false}));
+app.use(cookieParser());
 
-app.use("/url",urlRoute);
+app.use("/url", restrictToLoggedinUserOnly , urlRoute);
 app.use("/user",userRoute);
 app.use("/", staticRoute);
 app.get('/url/:shortId',async (req,res)=>{
@@ -36,6 +39,5 @@ app.get('/url/:shortId',async (req,res)=>{
     }})
     res.redirect(entry.redirectURL);
 })
-
 
 app.listen(PORT, () => console.log(`Server started at PORT:${PORT}`));
